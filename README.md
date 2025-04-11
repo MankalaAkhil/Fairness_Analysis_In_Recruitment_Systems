@@ -16,3 +16,15 @@ Scikit-learn: Random Forest Classifier for predictions.
 Matplotlib: Data visualization.
 python-docx & pdfplumber: CV parsing.
 Pickle: Data caching.
+
+Usage
+Launch the app and navigate via the sidebar.
+Upload CVs, select a role, and view predictions.
+Explore the dashboard for insights or download candidate data.
+Check the "Shortlist Candidates" page for top picks per role.
+
+Notes
+
+The system uses a synthetic dataset for initial testing.
+Gender fairness adjustments are applied to hiring probabilities.
+Ensure openpyxl is installed for Excel export (pip install openpyxl).
