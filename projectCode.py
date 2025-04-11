@@ -46,3 +46,17 @@ def load_cache():
 def save_cache():
     with open(CACHE_FILE, "wb") as f:
         pickle.dump(st.session_state.cv_data, f)
+def save_to_excel():
+    data = []
+    for cv, prob, role in st.session_state.cv_data:
+        data.append({
+            "Name": cv.name,
+            "Skills": ", ".join(cv.skills),
+            "Experience (Months)": cv.experience,
+            "Certifications": cv.certifications,
+            "Projects": cv.projects,
+            "Gender": cv.gender,
+            "Role": role,
+            "Hiring Probability": prob,
+            "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
