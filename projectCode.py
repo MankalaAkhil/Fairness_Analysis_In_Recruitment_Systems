@@ -123,3 +123,12 @@ def update_data_view():
     ax.set_ylim(0, 1)
     plt.tight_layout()
     return fig
+def extract_name(text):
+    lines = text.split('\n')
+    for line in lines[:5]:  # Check first 5 lines
+        line = line.strip()
+        if line and not line.lower().startswith(('email', 'phone', 'address', 'objective', 'summary')):
+            if "Name:" in line:
+                return line.split("Name:")[1].strip()
+            return line
+    return f"CV_{len(st.session_state.cv_data) + 1}" 
