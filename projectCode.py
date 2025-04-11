@@ -10,3 +10,11 @@ import pandas as pd
 from datetime import datetime
 import pdfplumber
 
+class CV:
+    def __init__(self, name, skills, experience, certifications, projects, gender):
+        self.name = name
+        self.skills = skills
+        self.experience = experience
+        self.certifications = certifications
+        self.projects = projects
+        self.gender = gender
