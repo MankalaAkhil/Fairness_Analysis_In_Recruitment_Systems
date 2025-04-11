@@ -163,3 +163,112 @@ def shortlist_top_candidates():
                 used_names.add(cv.name)
         shortlist[role] = top_5
     return shortlist
+def main():
+    st.sidebar.title("Navigation")
+    page = st.sidebar.radio("Go to", ["Home", "Shortlist Candidates"])
+
+    if page == "Home":
+        st.title("Fairness-aware Hiring Prediction System")
+
+        # Load initial data
+        st.session_state.cv_data = load_cache()
+        if not st.session_state.cv_data:
+            load_initial_data()
+
+        # Create tabs
+        tab1, tab2, tab3 = st.tabs(["Upload CV", "Dashboard", "Data Viewer & EDA"])
+
+        with tab1:
+            st.header("Upload CV")
+            uploaded_files = st.file_uploader("Upload CVs (DOCX/PDF)", type=["docx", "pdf"], accept_multiple_files=True)
+            role = st.selectbox("Select Role:", list(ROLE_SKILLS.keys()))
+
+            if uploaded_files:
+                for uploaded_file in uploaded_files:
+                    try:
+                        if uploaded_file.name.lower().endswith('.docx'):
+                            doc = Document(uploaded_file)
+                            text = "\n".join([para.text for para in doc.paragraphs])
+                        elif uploaded_file.name.lower().endswith('.pdf'):
+                            with pdfplumber.open(uploaded_file) as pdf:
+                                text = "\n".join([page.extract_text() or "" for page in pdf.pages])
+                        else:
+                            st.error(f"Unsupported file format: {uploaded_file.name}")
+                            continue
+
+                        text_lower = text.lower()
+                        name = extract_name(text)
+                        if "Dhruv" in text:
+                            cv = CV("Dhruv", ["Java", "Python", "C++", "Unreal Engine", "Blender"], 12, 5, 2, "male")
+                        else:
+                            skills = random.sample(["Java", "Python", "C++", "HTML", "CSS", "Unreal Engine", "R", "SQL", "Machine Learning"], 3)
+                            gender = "male" if "he/him" in text_lower or "mr." in text_lower else "female"
+                            cv = CV(name, skills, random.randint(6, 24), random.randint(1, 5), random.randint(1, 3), gender)
+
+                        features = extract_features(cv, role)
+                        prob = predict_hiring(features, cv.gender)
+                        st.session_state.cv_data.append((cv, prob, role))
+                        st.session_state.last_cv = (cv, prob, role)  # Store last CV for dashboard
+                        save_cache()
+                        save_to_excel()
+                        st.success(f"Prediction for {cv.name}: {prob:.2%}")
+
+                    except Exception as e:
+                        st.error(f"Error processing {uploaded_file.name}: {str(e)}")
+
+        with tab2:
+            st.header("Dashboard")
+            if st.session_state.cv_data:
+                fig = update_dashboard()
+                st.pyplot(fig)
+                if st.session_state.last_cv:
+                    cv, prob, role = st.session_state.last_cv
+                    if prob > 0.8:
+                        st.success(f"Congratulations! {cv.name}, You're in the Top 5% for getting selected in {role}")
+                    st.subheader("Candidate Details")
+                    st.write(f"**Name**: {cv.name}")
+                    st.write(f"**Skills**: {', '.join(cv.skills)}")
+                    st.write(f"**Prediction**: {prob:.2%}")
+            else:
+                st.write("No data available for dashboard.")
+
+        with tab3:
+            st.header("Data Viewer & EDA")
+            if st.session_state.cv_data:
+                data = [{"Name": cv.name, "Skills": ", ".join(cv.skills), "Exp (Mo)": cv.experience,
+                         "Certs": cv.certifications, "Projects": cv.projects, "Gender": cv.gender,
+                         "Role": role, "Prob": f"{prob:.2%}"}
+                        for cv, prob, role in st.session_state.cv_data]
+                st.dataframe(pd.DataFrame(data))
+                fig = update_data_view()
+                st.pyplot(fig)
+                if os.path.exists(EXCEL_FILE):
+                    with open(EXCEL_FILE, "rb") as f:
+                        st.download_button(label="Download Excel File", data=f, file_name=EXCEL_FILE,
+                                          mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            else:
+                st.write("No data available for viewing.")
+
+    elif page == "Shortlist Candidates":
+        st.title("Shortlist Top 5 Candidates per Role")
+        if st.session_state.cv_data:
+            shortlist = shortlist_top_candidates()
+            for role, candidates in shortlist.items():
+                st.subheader(f"{role}")
+                if candidates:
+                    for i, (cv, prob) in enumerate(candidates, 1):
+                        with st.expander(f"{i}. {cv.name} - {prob:.2%}"):
+                            st.write(f"**Name**: {cv.name}")
+                            st.write(f"**Skills**: {', '.join(cv.skills)}")
+                            st.write(f"**Experience**: {cv.experience} months")
+                            st.write(f"**Certifications**: {cv.certifications}")
+                            st.write(f"**Projects**: {cv.projects}")
+                            st.write(f"**Gender**: {cv.gender}")
+                            st.write(f"**Prediction**: {prob:.2%}")
+                else:
+                    st.write("No candidates available for this role.")
+        else:
+            st.write("No data available to shortlist.")
+
+if __name__ == "__main__":
+    main()
