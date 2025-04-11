@@ -60,3 +60,21 @@ def save_to_excel():
             "Hiring Probability": prob,
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
+df = pd.DataFrame(data)
+    try:
+        df.to_excel(EXCEL_FILE, index=False)
+        return df
+    except ImportError as e:
+        st.error(f"Error: {e}. Please install openpyxl: 'pip install openpyxl'")
+        return None
+    except Exception as e:
+        st.error(f"Error saving to Excel: {e}")
+        return None
+
+def extract_features(cv, role):
+    required_skills = ROLE_SKILLS[role]
+    skill_score = sum(1 for skill in cv.skills if skill in required_skills) / len(required_skills)
+    experience_score = min(cv.experience / 24, 1.0)
+    cert_score = min(cv.certifications / 5, 1.0)
+    project_score = min(cv.projects / 3, 1.0)
+    return [skill_score, experience_score, cert_score, project_score]
