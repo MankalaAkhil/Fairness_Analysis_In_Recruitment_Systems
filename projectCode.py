@@ -102,3 +102,24 @@ def update_dashboard():
     avg_probs = [np.mean(probs[role]) if probs[role] else 0 for role in roles]
     ax1.bar(roles, avg_probs, color="skyblue")
     ax1.set_title("Avg Hiring Prob by Role")
+    ax1.set_ylim(0, 1)
+    ax1.tick_params(axis='x', rotation=20)
+
+    genders = [cv.gender for cv, _, _ in st.session_state.cv_data]
+    male_count = genders.count("male")
+    female_count = genders.count("female")
+    ax2.pie([male_count, female_count], labels=["Male", "Female"],
+            autopct="%1.1f%%", colors=["lightblue", "lightpink"])
+    ax2.set_title("Gender Distribution")
+    plt.tight_layout()
+    return fig
+
+def update_data_view():
+    fig, ax = plt.subplots(figsize=(5, 4))
+    df = pd.DataFrame([{"Gender": cv.gender, "Hiring Probability": prob} for cv, prob, _ in st.session_state.cv_data])
+    avg_probs = df.groupby("Gender")["Hiring Probability"].mean()
+    avg_probs.plot(kind="bar", ax=ax, color="coral")
+    ax.set_title("Avg Hiring Prob by Gender")
+    ax.set_ylim(0, 1)
+    plt.tight_layout()
+    return fig
