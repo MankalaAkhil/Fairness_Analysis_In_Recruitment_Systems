@@ -93,3 +93,12 @@ def predict_hiring(features, gender):
     else:
         raise ValueError("Gender must be 'male' or 'female'")
     return min(max(prob_adjusted, 0), 1)
+def update_dashboard():
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    roles = list(ROLE_SKILLS.keys())
+    probs = {role: [] for role in roles}
+    for cv, prob, role in st.session_state.cv_data:
+        probs[role].append(prob)
+    avg_probs = [np.mean(probs[role]) if probs[role] else 0 for role in roles]
+    ax1.bar(roles, avg_probs, color="skyblue")
+    ax1.set_title("Avg Hiring Prob by Role")
