@@ -24,3 +24,11 @@ ROLE_SKILLS = {
     "Web Developer": ["HTML", "CSS", "JavaScript", "MongoDB"],
     "Data Scientist": ["Python", "R", "SQL", "Machine Learning"]
 }
+CACHE_FILE = "cv_cache.pkl"
+EXCEL_FILE = "cv_data.xlsx"
+
+# Initialize session state
+if 'cv_data' not in st.session_state:
+    st.session_state.cv_data = []
+if 'last_cv' not in st.session_state:
+    st.session_state.last_cv = None
