@@ -78,3 +78,18 @@ def extract_features(cv, role):
     cert_score = min(cv.certifications / 5, 1.0)
     project_score = min(cv.projects / 3, 1.0)
     return [skill_score, experience_score, cert_score, project_score]
+def predict_hiring(features, gender):
+    weights = [0.4, 0.3, 0.2, 0.1]
+    base_score = sum(f * w for f, w in zip(features, weights))
+    X = np.array([features] * 100)
+    y = np.random.choice([0, 1], 100, p=[0.3, 0.7])
+    model = RandomForestClassifier(n_estimators=100)
+    model.fit(X, y)
+    prob = model.predict_proba([features])[0][1]
+    if gender == "male":
+        prob_adjusted = prob * 0.95
+    elif gender == "female":
+        prob_adjusted = prob * 1.05
+    else:
+        raise ValueError("Gender must be 'male' or 'female'")
+    return min(max(prob_adjusted, 0), 1)
