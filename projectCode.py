@@ -43,3 +43,6 @@ def load_cache():
             except (pickle.UnpicklingError, EOFError):
                 return []
     return []
+def save_cache():
+    with open(CACHE_FILE, "wb") as f:
+        pickle.dump(st.session_state.cv_data, f)
