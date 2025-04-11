@@ -149,3 +149,17 @@ def load_initial_data():
         save_cache()
         save_to_excel()
 
+def shortlist_top_candidates():
+    roles = list(ROLE_SKILLS.keys())
+    shortlist = {}
+    used_names = set()
+    for role in roles:
+        role_candidates = [(cv, prob) for cv, prob, r in st.session_state.cv_data if r == role]
+        role_candidates.sort(key=lambda x: x[1], reverse=True)
+        top_5 = []
+        for cv, prob in role_candidates:
+            if cv.name not in used_names and len(top_5) < 5:
+                top_5.append((cv, prob))
+                used_names.add(cv.name)
+        shortlist[role] = top_5
+    return shortlist
