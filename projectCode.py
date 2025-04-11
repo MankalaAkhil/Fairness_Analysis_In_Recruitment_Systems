@@ -18,3 +18,9 @@ class CV:
         self.certifications = certifications
         self.projects = projects
         self.gender = gender
+ROLE_SKILLS = {
+    "Software Engineer": ["Java", "Python", "C++", "JavaScript"],
+    "Game Developer": ["Unreal Engine", "C++", "Blender", "Maya"],
+    "Web Developer": ["HTML", "CSS", "JavaScript", "MongoDB"],
+    "Data Scientist": ["Python", "R", "SQL", "Machine Learning"]
+}
