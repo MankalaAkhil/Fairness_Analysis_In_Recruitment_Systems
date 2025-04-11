@@ -32,3 +32,14 @@ if 'cv_data' not in st.session_state:
     st.session_state.cv_data = []
 if 'last_cv' not in st.session_state:
     st.session_state.last_cv = None
+def load_cache():
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE, "rb") as f:
+            try:
+                data = pickle.load(f)
+                if isinstance(data, list) and all(len(item) == 3 and isinstance(item[0], CV) for item in data):
+                    return data
+                return []
+            except (pickle.UnpicklingError, EOFError):
+                return []
+    return []
