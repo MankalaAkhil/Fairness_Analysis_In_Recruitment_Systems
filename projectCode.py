@@ -132,3 +132,20 @@ def extract_name(text):
                 return line.split("Name:")[1].strip()
             return line
     return f"CV_{len(st.session_state.cv_data) + 1}" 
+def load_initial_data():
+    if not st.session_state.cv_data:
+        dhruv_cv = CV("Dhruv", ["Java", "Python", "C++", "Unreal Engine", "Blender"], 12, 5, 2, "male")
+        st.session_state.cv_data.append((dhruv_cv, 0.82, "Game Developer"))
+        for i in range(60):
+            name = f"CV_{i + 1}"
+            skills = random.sample(["Java", "Python", "C++", "HTML", "CSS", "Unreal Engine", "Blender", "R", "SQL",
+                                    "Machine Learning"], 3)
+            cv = CV(name, skills, random.randint(6, 24), random.randint(1, 5), random.randint(1, 3),
+                    random.choice(["male", "female"]))
+            role = random.choice(list(ROLE_SKILLS.keys()))
+            features = extract_features(cv, role)
+            prob = predict_hiring(features, cv.gender)
+            st.session_state.cv_data.append((cv, prob, role))
+        save_cache()
+        save_to_excel()
+
